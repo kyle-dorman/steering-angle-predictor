@@ -4,11 +4,11 @@ from keras.layers import Input, Dense
 from keras.models import Model
 from keras.layers import TimeDistributed
 
-from util impor download_s3
+from util import download_s3
 
 def model(load_saved=False):
 	if load_saved:
-		#
+		print("load_saved")
 	else:
 		create_model()
 
@@ -27,7 +27,7 @@ def create_model():
 	model = Model(inputs=inputs, outputs=predictions)
 
 	# left, right, center outputs of VGG16
-	main_input = Input(shape=(3, ?, ?, ?), dtype='int32', name='bottleneck_left_right_center')
+	main_input = Input(shape=(3, 0, 0, 0), dtype='int32', name='bottleneck_left_right_center')
 
 
 def download_bottleneck_features():

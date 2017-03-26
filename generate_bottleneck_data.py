@@ -7,7 +7,7 @@ import tensorflow as tf
 from keras.layers.normalization import BatchNormalization
 from keras.layers import Lambda
 from keras.applications.vgg16 import VGG16
-from keras.models import Sequential
+from keras.models import Model
 from keras.layers import Input
 import pickle
 import time
