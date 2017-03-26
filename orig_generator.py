@@ -20,7 +20,6 @@ class OrigData(object):
 		return [VideoGenerator(video_folder, batch_size=self.batch_size) for video_folder in self.video_folders]
 
 	def shape(self):
-		return 30
 		return self.generators[0].image_shape()
 
 class VideoGenerator(object):
@@ -34,6 +33,7 @@ class VideoGenerator(object):
 		self.direction = 'left'
 
 	def size(self):
+		return 30
 		return len(self.df.index)//3
 
 	def image_shape(self):
