@@ -15,7 +15,7 @@ class OrigData(object):
 		self.generators = self._generators()
 
 	def _generators(self):
-		return [VideoGenerator(video_folder, self.batch_size) for video_folder in self.video_folders]
+		return [VideoGenerator(video_folder, batch_size=self.batch_size) for video_folder in self.video_folders]
 
 	def shape(self):
 		return self.generators[0].image_shape()
@@ -25,14 +25,14 @@ class VideoGenerator(object):
 		self.name = video_folder.split("/")[-1]
 		self.video_folder = video_folder
 		self.batch_size = batch_size
-		#, names=["index","timestamp","width","height","frame_id","filename","angle","torque","speed","lat","long","alt"])
 		self.df = pd.read_csv(video_folder + "/interpolated.csv")
 
 		self.batch_index = 0
 		self.direction = 'left'
 
 	def size(self):
-		return len(self.df.index) / 3
+		return 99
+		return len(self.df.index)//3
 
 	def image_shape(self):
 		return self.image(0).shape
@@ -62,7 +62,7 @@ class VideoGenerator(object):
 		return self.next()
 
 	def next(self):
-		last_index = len(self.df.index)
+		last_index = self.size()*3
 		start_index = self.batch_index
 		end_index = min(self.batch_index + (3 * self.batch_size), last_index)
 		# reset index when we get to the end
@@ -70,5 +70,4 @@ class VideoGenerator(object):
 
 		indices = [self.direction_index(i) for i in range(start_index, end_index, 3)]
 		return self.images(indices)
-
-
+		
