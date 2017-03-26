@@ -1,46 +1,35 @@
 #!/bin/python
 
-from orig_generator import OrigData
-from util import full_path, upload_s3
+from keras.layers import Input, Dense
+from keras.models import Model
+from keras.layers import TimeDistributed
 
-from keras.layers.normalization import BatchNormalization
-from keras.applications.vgg16 import VGG16
-from keras.models import Sequential
-from keras.layers import Input
-import pickle
+from util impor download_s3
 
-def train_bottleneck_features(batch_size, save):
-	data = OrigData(batch_size=batch_size)
-
-	model = Sequential()
-	model.add(VGG16(input_shape=data.shape(), include_top=False))
-	model.add(BatchNormalization())
-
-	print('Bottleneck training')
-
-	files = []
-
-	for generator in data.generators:
-		results = {'left': [], 'right': [], 'center':[]}
-
-		for direction in ['left', 'right', 'center']:
-			t = time.time()
-			print("Generating bottleneck data for generator:", generator.name, "and direction:", direction)
-			generator.set_direction(direction)
-			results[direction].append(model.predict_generator(generator, generator.size()))
-			print("Done generatring output. Took", time.time() - t, "seconds.")
-
-		output_file = full_path("bottleneck_data/" + generator.name + ".p")
-		files.append(output_file)
-		pickle.dump(results, open(output_file, 'wb'))
-
-	if save:
-		print("Saving files.")
-		save_bottleneck_features(files)
+def model(load_saved=False):
+	if load_saved:
+		#
 	else:
-		print("Not saving files.")
+		create_model()
 
-def save_bottleneck_features(files):
-	for file in files:
-		file = file.split("steering-angle-predictor/")[-1]
-		upload_s3(file)
+
+def create_model():
+	# This returns a tensor
+	inputs = Input(shape=(784,))
+
+	# a layer instance is callable on a tensor, and returns a tensor
+	x = Dense(64, activation='relu')(inputs)
+	x = Dense(64, activation='relu')(x)
+	predictions = Dense(10, activation='softmax')(x)
+
+	# This creates a model that includes
+	# the Input layer and three Dense layers
+	model = Model(inputs=inputs, outputs=predictions)
+
+	# left, right, center outputs of VGG16
+	main_input = Input(shape=(3, ?, ?, ?), dtype='int32', name='bottleneck_left_right_center')
+
+
+def download_bottleneck_features():
+	for i in [1,2,4,5,6]:
+		download_s3("bottleneck_data/HMB_{}.p".format(i))

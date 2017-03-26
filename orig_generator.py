@@ -4,6 +4,7 @@ import os
 import pandas as pd
 import numpy as np
 from keras.preprocessing.image import img_to_array, load_img
+import scipy.misc
 
 from util import full_path
 
@@ -31,15 +32,17 @@ class VideoGenerator(object):
 		self.direction = 'left'
 
 	def size(self):
-		return 99
 		return len(self.df.index)//3
 
 	def image_shape(self):
 		return self.image(0).shape
 
 	def image(self, index):
+		i_width = 320
+		i_height = 240
 		path = self.video_folder + "/" + self.df['filename'][index]
-		return img_to_array(load_img(path))
+		original_image = img_to_array(load_img(path))
+		return scipy.misc.imresize(original_image, (i_height, i_width))
 
 	def images(self, indices):
 		return np.array([self.image(i) for i in indices])
@@ -70,4 +73,3 @@ class VideoGenerator(object):
 
 		indices = [self.direction_index(i) for i in range(start_index, end_index, 3)]
 		return self.images(indices)
-		
