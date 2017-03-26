@@ -1,4 +1,9 @@
 .DS_Store
 orig_data/*
-
+image_data/*
+bottleneck_data/*
+*.gz
 !orig_data/.keep_me
+!image_data/.keep_me
+!bottleneck_data/.keep_me
+__pycache__*

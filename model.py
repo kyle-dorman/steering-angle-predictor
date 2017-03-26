@@ -1,25 +1,39 @@
+#!/bin/python
 
+from orig_generator import OrigData
+from util import full_path, upload_s3
 
-def train_bottleneck_features(dataset, batch_size):
-	if dataset == 'original':
-		data = SimulatorData(load_simple_data(), batch_size)
-	else:
-		raise Exception("Unexpected dataset:", dataset)
+from keras.layers.normalization import BatchNormalization
+from keras.applications.vgg16 import VGG16
+from keras.layers import Input
+import pickle
 
-	train_output_file, validation_output_file = files(dataset, batch_size)
+def train_bottleneck_features(batch_size, save):
+	data = OrigData(batch_size=batch_size)
+	generators = data.generators()
 
-	print("Saving to ...")
-	print(train_output_file)
-	print(validation_output_file)
-
-	model = VGG16(input_tensor=Input(shape=data.feature_shape), pooling=None, include_top=False)
+	inputs = Input(shape=generators[0].image_shape())
+	vgg = VGG16(input_tensor=inputs, include_top=False)
+	model = BatchNormalization()(vgg)
 
 	print('Bottleneck training')
-	bottleneck_features_train = model.predict_generator(data.train_generator(), data.num_train)
-	pickle_data = { 'features': bottleneck_features_train, 'labels': data.train_labels() }
-	pickle.dump(pickle_data, open(train_output_file, 'wb'))
 
-	print('Bottleneck validation')
-	bottleneck_features_validation = model.predict_generator(data.validation_generator(), data.num_validation)
-	pickle_data = { 'features': bottleneck_features_validation, 'labels': data.validation_labels() }
-	pickle.dump(pickle_data, open(validation_output_file, 'wb'))
+	files = []
+
+	for generator in generators:
+		output_file = full_path("bottleneck_data/" + generator.name + ".p")
+		files.append(output_file)
+		
+		bottleneck_features = model.predict_generator(generator, generator.size())
+		pickle.dump(bottleneck_features, open(output_file, 'wb'))
+
+	if save:
+		print("Saving files.")
+		save_bottleneck_features(files)
+	else:
+		print("Not saving files.")
+
+def save_bottleneck_features(files):
+	for file in files:
+		file = file.split("steering-angle-predictor/")[-1]
+		upload_s3(file)
