@@ -5,6 +5,7 @@ from util import full_path, upload_s3
 
 from keras.layers.normalization import BatchNormalization
 from keras.applications.vgg16 import VGG16
+from keras.models import Sequential
 from keras.layers import Input
 import pickle
 
@@ -12,9 +13,9 @@ def train_bottleneck_features(batch_size, save):
 	data = OrigData(batch_size=batch_size)
 	generators = data.generators()
 
-	inputs = Input(shape=generators[0].image_shape())
-	vgg = VGG16(input_tensor=inputs, include_top=False)
-	model = BatchNormalization()(vgg)
+	model = Sequential()
+	model.add(VGG16(input_shape=generators[0].image_shape(), include_top=False))
+	model.add(BatchNormalization())
 
 	print('Bottleneck training')
 
@@ -23,7 +24,7 @@ def train_bottleneck_features(batch_size, save):
 	for generator in generators:
 		output_file = full_path("bottleneck_data/" + generator.name + ".p")
 		files.append(output_file)
-		
+
 		bottleneck_features = model.predict_generator(generator, generator.size())
 		pickle.dump(bottleneck_features, open(output_file, 'wb'))
 
