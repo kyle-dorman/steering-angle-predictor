@@ -4,6 +4,7 @@ import os
 import pandas as pd
 import numpy as np
 from keras.preprocessing.image import img_to_array, load_img
+from keras.applications.vgg16 import preprocess_input
 import scipy.misc
 
 from util import full_path
@@ -19,6 +20,7 @@ class OrigData(object):
 		return [VideoGenerator(video_folder, batch_size=self.batch_size) for video_folder in self.video_folders]
 
 	def shape(self):
+		return 30
 		return self.generators[0].image_shape()
 
 class VideoGenerator(object):
@@ -45,7 +47,7 @@ class VideoGenerator(object):
 		return scipy.misc.imresize(original_image, (i_height, i_width))
 
 	def images(self, indices):
-		return np.array([self.image(i) for i in indices])
+		return preprocess_input(np.array([self.image(i) for i in indices]))
 
 	def set_direction(self, direction):
 		self.direction = direction
