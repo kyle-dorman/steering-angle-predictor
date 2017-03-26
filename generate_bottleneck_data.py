@@ -5,6 +5,7 @@ from util import full_path, upload_s3, stop_instance
 
 import tensorflow as tf
 from keras.layers.normalization import BatchNormalization
+from keras.layers import Lambda
 from keras.applications.vgg16 import VGG16, preprocess_input
 from keras.models import Sequential
 from keras.layers import Input
@@ -15,10 +16,13 @@ import os
 def train_bottleneck_features(batch_size, save):
 	data = OrigData(batch_size=batch_size)
 
-	model = Sequential()
-	model.add(Lambda(lambda x: preprocess_input(x)))
-	model.add(VGG16(input_shape=data.shape(), include_top=False))
-	model.add(BatchNormalization())
+	inputs = Input(input_shape=data.shape())
+	preprocess_inputs = Lambda(lambda x: preprocess_input(x))(inputs)
+	# create the base pre-trained model
+	base_model = VGG16(input_tensor=preprocess_inputs, include_top=False)
+	output = BatchNormalization()(base_model.output)
+
+	model = Model(input=inputs, output=output)
 
 	print('Bottleneck training')
 
