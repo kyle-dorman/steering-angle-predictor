@@ -2,6 +2,7 @@
 
 import os
 import pandas as pd
+import numpy as np
 from keras.preprocessing.image import img_to_array, load_img
 
 from util import full_path
@@ -11,9 +12,14 @@ class OrigData(object):
 		self.batch_size = batch_size
 		data_folder = full_path("image_data")
 		self.video_folders = [os.path.join(data_folder,child) for child in os.listdir(data_folder) if os.path.isdir(os.path.join(data_folder,child))]
+		self.generators = self._generators()
 
-	def generators(self):
+	def _generators(self):
 		return [VideoGenerator(video_folder, self.batch_size) for video_folder in self.video_folders]
+
+	def shape(self):
+		image_shape = self.generators[0].image_shape()
+		return [None, image_shape[0], image_shape[1], image_shape[2]]
 
 class VideoGenerator(object):
 	def __init__(self, video_folder, batch_size=32):

@@ -11,17 +11,16 @@ import pickle
 
 def train_bottleneck_features(batch_size, save):
 	data = OrigData(batch_size=batch_size)
-	generators = data.generators()
 
 	model = Sequential()
-	model.add(VGG16(input_shape=generators[0].image_shape(), include_top=False))
+	model.add(VGG16(input_shape=data.shape(), include_top=False))
 	model.add(BatchNormalization())
 
 	print('Bottleneck training')
 
 	files = []
 
-	for generator in generators:
+	for generator in data.generators:
 		output_file = full_path("bottleneck_data/" + generator.name + ".p")
 		files.append(output_file)
 
