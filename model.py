@@ -21,11 +21,14 @@ def train_bottleneck_features(batch_size, save):
 	files = []
 
 	for generator in data.generators:
+		results = {'left': [], 'right': [], 'center':[]}
+		for direction in ['left', 'right', 'center']:
+			generator.set_direction(direction)
+			results[direction].append(model.predict_generator(generator, generator.size()))
+
 		output_file = full_path("bottleneck_data/" + generator.name + ".p")
 		files.append(output_file)
-
-		bottleneck_features = model.predict_generator(generator, generator.size())
-		pickle.dump(bottleneck_features, open(output_file, 'wb'))
+		pickle.dump(results, open(output_file, 'wb'))
 
 	if save:
 		print("Saving files.")

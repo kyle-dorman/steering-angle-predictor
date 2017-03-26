@@ -18,8 +18,7 @@ class OrigData(object):
 		return [VideoGenerator(video_folder, self.batch_size) for video_folder in self.video_folders]
 
 	def shape(self):
-		image_shape = self.generators[0].image_shape()
-		return [None, image_shape[0], image_shape[1], image_shape[2]]
+		return self.generators[0].image_shape()
 
 class VideoGenerator(object):
 	def __init__(self, video_folder, batch_size=32):
@@ -30,6 +29,7 @@ class VideoGenerator(object):
 		self.df = pd.read_csv(video_folder + "/interpolated.csv")
 
 		self.batch_index = 0
+		self.direction = 'left'
 
 	def size(self):
 		return len(self.df.index) / 3
@@ -44,6 +44,20 @@ class VideoGenerator(object):
 	def images(self, indices):
 		return np.array([self.image(i) for i in indices])
 
+	def set_direction(self, direction):
+		self.direction = direction
+		self.batch_index = 0
+
+	def direction_index(self, index):
+		if self.direction == 'left':
+			return index
+		elif self.direction == 'right':
+			return index + 1
+		elif self.direction == 'center':
+			return index + 2
+		else:
+			raise Exception("Unxpected direction " + self.direction)
+
 	def __next__(self):
 		return self.next()
 
@@ -54,17 +68,7 @@ class VideoGenerator(object):
 		# reset index when we get to the end
 		self.batch_index = end_index if end_index < last_index else 0 
 
-		left = []
-		right = []
-		center = []
+		indices = [self.direction_index(i) for i in range(start_index, end_index, 3)]
+		return self.images(indices)
 
-		for i in range(start_index, end_index, 3):
-			left.append(i)
-			right.append(i+1)
-			center.append(i+2)
 
-		return [
-			self.images(left),
-			self.images(right),
-			self.images(center)
-		]
