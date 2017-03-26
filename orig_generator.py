@@ -47,7 +47,7 @@ class VideoGenerator(object):
 		return scipy.misc.imresize(original_image, (i_height, i_width))
 
 	def images(self, indices):
-		return preprocess_input(np.array([self.image(i) for i in indices]))
+		return preprocess_input(np.array([self.image(i) for i in indices], dtype=np.float32))
 
 	def set_direction(self, direction):
 		self.direction = direction
