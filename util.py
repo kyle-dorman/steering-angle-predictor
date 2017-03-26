@@ -116,4 +116,10 @@ def save_pickle_file(file, data):
   abs_file = full_path(file)
   pickle.dump(data, open(abs_file, "wb" ) )
 
+def stop_instance():
+  ec2 = boto3.resource('ec2', region_name='us-east-1')
+  instances = ec2.instances.filter(Filters=[{'Name': 'instance-state-name', 'Values': ['running']}])
+  ids = [i.id for i in instances]
+  ec2.instances.filter(InstanceIds=ids).stop() # .terminate()
+
 
