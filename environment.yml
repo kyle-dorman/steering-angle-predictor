@@ -1,0 +1,113 @@
+name: carnd
+channels:
+- menpo
+- conda-forge
+- defaults
+dependencies:
+- appnope=0.1.0=py35_0
+- backports.shutil_get_terminal_size=1.0.0=py35_1
+- certifi=2017.1.23=py35_0
+- cycler=0.10.0=py35_0
+- entrypoints=0.2.2=py35_0
+- ipykernel=4.5.2=py35_0
+- ipython=5.1.0=py35_1
+- ipython_genutils=0.1.0=py35_0
+- ipywidgets=5.1.5=py35_0
+- jpeg=9b=0
+- jsonschema=2.5.1=py35_0
+- jupyter_client=4.4.0=py35_0
+- jupyter_console=5.0.0=py35_0
+- jupyter_core=4.2.1=py35_0
+- libsodium=1.0.10=0
+- nbconvert=4.2.0=py35_0
+- nbformat=4.2.0=py35_0
+- pandas=0.19.2=np111py35_1
+- prompt_toolkit=1.0.9=py35_0
+- ptyprocess=0.5.1=py35_0
+- pygments=2.1.3=py35_0
+- python-dateutil=2.6.0=py35_0
+- pytz=2016.10=py35_0
+- pyzmq=16.0.2=py35_0
+- setuptools=27.2.0=py35_0
+- sip=4.18=py35_0
+- six=1.10.0=py35_0
+- sqlite=3.13.0=0
+- terminado=0.6=py35_0
+- tornado=4.4.2=py35_0
+- tqdm=4.11.1=py35_1
+- traitlets=4.3.1=py35_0
+- wcwidth=0.1.7=py35_0
+- wheel=0.29.0=py35_0
+- widgetsnbextension=1.2.3=py35_1
+- zeromq=4.1.5=0
+- zlib=1.2.8=3
+- boto3=1.4.3=py35_0
+- botocore=1.4.90=py35_0
+- click=6.7=py35_0
+- decorator=4.0.10=py35_1
+- docutils=0.13.1=py35_0
+- flask=0.12=py35_0
+- freetype=2.5.5=1
+- h5py=2.6.0=np111py35_2
+- hdf5=1.8.17=1
+- icu=54.1=0
+- itsdangerous=0.24=py35_0
+- jbig=2.1=0
+- jinja2=2.8.1=py35_0
+- jmespath=0.9.0=py35_0
+- jupyter=1.0.0=py35_3
+- libpng=1.6.27=0
+- libtiff=4.0.6=3
+- markupsafe=0.23=py35_2
+- matplotlib=1.5.3=np111py35_1
+- mistune=0.7.3=py35_1
+- mkl=11.3.3=0
+- networkx=1.11=py35_0
+- notebook=4.3.0=py35_0
+- numpy=1.11.2=py35_0
+- openssl=1.0.2j=0
+- path.py=9.0.1=py35_0
+- pexpect=4.0.1=py35_0
+- pickleshare=0.7.4=py35_0
+- pillow=4.0.0=py35_0
+- pip=9.0.1=py35_1
+- pyparsing=2.1.4=py35_0
+- pyqt=5.6.0=py35_1
+- python=3.5.2=0
+- python.app=1.2=py35_4
+- qt=5.6.2=0
+- qtconsole=4.2.1=py35_1
+- readline=6.2=2
+- s3transfer=0.1.10=py35_0
+- scikit-image=0.12.3=np111py35_1
+- scikit-learn=0.18.1=np111py35_0
+- scipy=0.18.1=np111py35_0
+- simplegeneric=0.8.1=py35_1
+- tk=8.5.18=0
+- werkzeug=0.11.15=py35_0
+- xz=5.2.2=1
+- opencv3=3.1.0=py35_0
+- tbb=4.3_20141023=0
+- pip:
+  - backports.shutil-get-terminal-size==1.0.0
+  - enum-compat==0.0.2
+  - eventlet==0.20.1
+  - greenlet==0.4.12
+  - imageio==2.1.2
+  - ipython-genutils==0.1.0
+  - jupyter-client==4.4.0
+  - jupyter-console==5.0.0
+  - jupyter-core==4.2.1
+  - keras==1.2.1
+  - moviepy==0.2.2.13
+  - olefile==0.44
+  - prompt-toolkit==1.0.9
+  - protobuf==3.1.0.post1
+  - python-engineio==1.2.1
+  - python-socketio==1.7.0
+  - pyyaml==3.12
+  - tensorflow==0.12.1
+  - tensorflow-gpu==0.12.1
+  - theano==0.8.2
+prefix: /Users/kyledorman/anaconda/envs/carnd
+

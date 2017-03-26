@@ -1,5 +1,8 @@
 ### Steering wheel angle prediction
-THis is my (late) submission for Udacity's setter wheel angle prediction challenge. My work is influenced by  the results of the top 5 teams. 
+This is my (late) submission for Udacity's setter wheel angle prediction challenge. My work is influenced by  the results of the top 5 teams. 
+
+### Step 0
+Checkout envrionment file by running `conda env create -f environment.yml`.
 
 ### Step 1
 On aws, clone this project and run `python get_orig_data.py` to download original data set.
