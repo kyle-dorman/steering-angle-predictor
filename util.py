@@ -102,10 +102,24 @@ def open_pickle_file(file_name):
   open a pickled file
   :param file_name: name of file
   """
-  print("Unpickling file " + file_name + ".")
+  print("Unpickling file " + file_name)
   full_file_name = full_path(file_name)
   with open(full_file_name, mode='rb') as f:
     return pickle.load(f)
+
+def open_large_pickle_file(file_name):
+  file_path = full_path(file_name)
+  max_bytes = 2**31 - 1
+
+  bytes_in = bytearray(0)
+  input_size = os.path.getsize(file_path)
+  print("Opening {} which is size {}.".format(file_name, input_size))
+  with open(file_path, 'rb') as f_in:
+    for _ in range(0, input_size, max_bytes):
+      bytes_in += f_in.read(max_bytes)
+  data = pickle.loads(bytes_in)
+
+  return data
 
 def save_pickle_file(file, data):
   """

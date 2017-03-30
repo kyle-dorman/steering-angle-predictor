@@ -33,7 +33,6 @@ class VideoGenerator(object):
 		self.direction = 'left'
 
 	def size(self):
-		return 30
 		return len(self.df.index)//3
 
 	def image_shape(self):
