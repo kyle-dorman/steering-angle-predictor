@@ -21,8 +21,14 @@ class BottleneckData(object):
 
 			self.video_datasets[child] = (os.path.join(image_data,child) , "bottleneck_data/{}.p".format(child))
 
-		self.datasets = [VideoDataset("HMB_1", "image_data/HMB_1", "bottleneck_data/HMB_1.p", self.batch_size, self.video_frames)]
-		#[VideoDataset(key, video_data[0], video_data[1], self.batch_size, self.video_frames) for key, video_data in self.video_datasets.items()]
+		#self.datasets = [VideoDataset("HMB_1", "image_data/HMB_1", "bottleneck_data/HMB_1.p", self.batch_size, self.video_frames)]
+		self.datasets = [VideoDataset(key, video_data[0], video_data[1], self.batch_size, self.video_frames) for key, video_data in self.video_datasets.items()]
+
+	def bottleneck_shape(self):
+		self.datasets[0].bottleneck_shape()
+
+	def vehicle_shape(self):
+		self.datasets[0].vehicle_shape()
 
 class VideoDataset(object):
 	def __init__(self, name, video_folder, bottleneck_data_file, batch_size, video_frames):
@@ -61,13 +67,13 @@ class VideoDataset(object):
 		return np.array([self._bottleneck_data['left'][index], self._bottleneck_data['right'][index], self._bottleneck_data['center'][index]])
 
 	def bottleneck_shape(self):
-		return [self.video_frames] + list(self.bottleneck_data(0).shape)
+		return [self.batch_size, self.video_frames] + list(self.bottleneck_data(0).shape)
 
 	def vehicle_data(self, index):
 		return self.df.iloc[index][6:9].values
 
 	def vehicle_shape(self):
-		return [self.video_frames] + list(self.vehicle_data(0).shape)
+		return [self.batch_size, self.video_frames] + list(self.vehicle_data(0).shape)
 
 	def steering_angle(self, index):
 		return self.df.iloc[index][6]
@@ -84,7 +90,7 @@ class BottleneckDataIterator(object):
 		self.batch_size = batch_size
 		self.video_frames = video_frames
 		self.start_index = start_index
-		self.end_index = end_index
+		self.end_index = start_index + (((end_index - start_index)//batch_size)* batch_size)
 		self.batch_index = start_index
 		self.dataset = dataset
 		self.bottleneck_queue = deque()
@@ -113,13 +119,14 @@ class BottleneckDataIterator(object):
 
 			result['bottleneck_left_right_center'].append(list(self.bottleneck_queue))
 			result['angle_torque_speed'].append(list(self.vehicle_data_queue))
-			labels.append([self.dataset.steering_angle(index)])
+			labels.append([self.dataset.steering_angle((3*index)+2)])
 
 		result['bottleneck_left_right_center'] = np.array(result['bottleneck_left_right_center'])
 		result['angle_torque_speed'] = np.array(result['angle_torque_speed'])
 
-		for i in range(-6, -1):
-			### don't expose speed for the last 6 frames
+		length = len(result['angle_torque_speed'])
+		for i in range(length-6, length):
+			### don't expose speed for the last 5 frames
 			result['angle_torque_speed'][i][0] = 0
 		return (result, labels)
 
