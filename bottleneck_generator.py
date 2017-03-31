@@ -21,14 +21,14 @@ class BottleneckData(object):
 
 			self.video_datasets[child] = (os.path.join(image_data,child) , "bottleneck_data/{}.p".format(child))
 
-		#self.datasets = [VideoDataset("HMB_1", "image_data/HMB_1", "bottleneck_data/HMB_1.p", self.batch_size, self.video_frames)]
-		self.datasets = [VideoDataset(key, video_data[0], video_data[1], self.batch_size, self.video_frames) for key, video_data in self.video_datasets.items()]
+		self.datasets = [VideoDataset("HMB_1", "image_data/HMB_1", "bottleneck_data/HMB_1.p", self.batch_size, self.video_frames)]
+		#self.datasets = [VideoDataset(key, video_data[0], video_data[1], self.batch_size, self.video_frames) for key, video_data in self.video_datasets.items()]
 
 	def bottleneck_shape(self):
-		self.datasets[0].bottleneck_shape()
+		return self.datasets[0].bottleneck_shape()
 
 	def vehicle_shape(self):
-		self.datasets[0].vehicle_shape()
+		return self.datasets[0].vehicle_shape()
 
 class VideoDataset(object):
 	def __init__(self, name, video_folder, bottleneck_data_file, batch_size, video_frames):
@@ -67,13 +67,13 @@ class VideoDataset(object):
 		return np.array([self._bottleneck_data['left'][index], self._bottleneck_data['right'][index], self._bottleneck_data['center'][index]])
 
 	def bottleneck_shape(self):
-		return [self.batch_size, self.video_frames] + list(self.bottleneck_data(0).shape)
+		return [self.batch_size, self.video_frames] + list(self.bottleneck_data(self.video_length-1).shape)
 
 	def vehicle_data(self, index):
 		return self.df.iloc[index][6:9].values
 
 	def vehicle_shape(self):
-		return [self.batch_size, self.video_frames] + list(self.vehicle_data(0).shape)
+		return [self.batch_size, self.video_frames] + list(self.vehicle_data(self.video_length-1).shape)
 
 	def steering_angle(self, index):
 		return self.df.iloc[index][6]

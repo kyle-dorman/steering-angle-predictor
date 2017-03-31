@@ -23,8 +23,8 @@ def main(_):
 	bottleneck_input = Input(batch_shape=data.bottleneck_shape(), dtype='float32', name='bottleneck_left_right_center')
 	vehicle_inputs = Input(batch_shape=data.vehicle_shape(), dtype='float32', name='angle_torque_speed')
 
-	rnn_model = create_model(bottleneck_input, vehicle_inputs, batch_size=FLAGS.batch_size, video_frames=FLAGS.video_frames) 
-	train_model(rnn_model, data, epochs=FLAGS..epochs, batch_size=FLAGS.batch_size, video_frames=FLAGS.video_frames)
+	rnn_model = create_model(bottleneck_input, vehicle_inputs, video_frames=FLAGS.video_frames) 
+	train_model(rnn_model, data, epochs=FLAGS.epochs, batch_size=FLAGS.batch_size, video_frames=FLAGS.video_frames)
 
 if __name__ == '__main__':
 	tf.app.run()

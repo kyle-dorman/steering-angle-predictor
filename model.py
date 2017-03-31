@@ -5,7 +5,7 @@ from keras.layers import Input
 from keras.layers.core import Dense, Reshape, Dropout
 from keras.models import Model
 from keras.layers.recurrent import GRU
-from keras.callbacks import History, ModelCheckpoint
+from keras.callbacks import History, ModelCheckpoint, Callback
 
 from util import download_s3, full_path
 from bottleneck_generator import BottleneckData
@@ -70,11 +70,11 @@ class HistoryMultiplexer(Callback):
 
 	def on_epoch_end(self, epoch, history, train_sizes, valid_sizes):
 		self.epoch.append(epoch)
-    logs = self.logs(history, train_sizes, valid_sizes)
-    for k, v in logs.items():
-      self.history.setdefault(k, []).append(v)
+		logs = self.logs(history, train_sizes, valid_sizes)
+		for k, v in logs.items():
+			self.history.setdefault(k, []).append(v)
 
-  def logs(history, train_sizes, valid_sizes):
+	def logs(history, train_sizes, valid_sizes):
 		valid_size = sum(valid_sizes)
 		train_size = sum(train_sizes)
 		logs = {}
