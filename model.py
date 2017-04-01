@@ -32,12 +32,13 @@ def create_model(image_inputs, vehicle_inputs, video_frames=100):
 	return model
 
 def train_model(model, data, epochs=1, batch_size=32, video_frames=100):
-	history = HistoryMultiplexer()
-	history.on_train_begin()
+	all_history = HistoryMultiplexer()
+	all_history.on_train_begin()
 	saver = ModelCheckpoint(full_path("model.cptk"), verbose=1, save_best_only=True, period=1)
 
 	for epoch in range(epochs):
 		epoch_history = History()
+		epoch_history.on_train_begin()
 		valid_sizes = []
 		train_sizes = []
 		for dataset in data.datasets:
@@ -45,26 +46,27 @@ def train_model(model, data, epochs=1, batch_size=32, video_frames=100):
 			valid_sizes.append(dataset.valid_generators[0].size())
 			train_sizes.append(dataset.train_generators[0].size())
 
-			model.fit_generator(dataset.train_generators[0], 
+			history = model.fit_generator(dataset.train_generators[0],
 				dataset.train_generators[0].size(), 
 				nb_epoch=1, 
 				verbose=1, 
-				callbacks=[epoch_history],
 				validation_data=dataset.valid_generators[0], 
 				nb_val_samples=dataset.valid_generators[0].size())
 
-			train_sizes.append(dataset.train_generators[1].size())
+			epoch_history.on_epoch_end(epoch, history.history)
 
-			model.fit_generator(dataset.train_generators[1], 
+			train_sizes.append(dataset.train_generators[1].size())
+			history = model.fit_generator(dataset.train_generators[1],
 				dataset.train_generators[1].size(),
 				nb_epoch=1, 
-				verbose=1,
-				callbacks=[epoch_history])
+				verbose=1)
 
-		history.on_epoch_end(epoch, history, train_sizes, valid_sizes)
-		logs = {k: v[-1] for k, v in history.history.items()}
-		print([k for k in log.keys()])
-		saver.on_epoch_end(epoch, logs=)
+			epoch_history.on_epoch_end(epoch, history.history)
+
+		all_history.on_epoch_end(epoch, epoch_history, train_sizes, valid_sizes)
+		logs = {k: v[-1] for k, v in all_history.history.items()}
+		print([k for k in logs.keys()])
+		saver.on_epoch_end(epoch, logs=logs)
 
 class HistoryMultiplexer(Callback):
 	def on_train_begin(self, logs=None):
@@ -77,10 +79,11 @@ class HistoryMultiplexer(Callback):
 		for k, v in logs.items():
 			self.history.setdefault(k, []).append(v)
 
-	def logs(history, train_sizes, valid_sizes):
+	def logs(self, history, train_sizes, valid_sizes):
 		valid_size = sum(valid_sizes)
 		train_size = sum(train_sizes)
 		logs = {}
+		print('history:', history.history)
 		for k, v in history.history.items():
 			if "val_" in k:
 				logs[k] = sum([val*(valid_sizes[i]/valid_size) for i, val in enumerate(v)])
