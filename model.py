@@ -53,15 +53,18 @@ def train_model(model, data, epochs=1, batch_size=32, video_frames=100):
 				validation_data=dataset.valid_generators[0], 
 				nb_val_samples=dataset.valid_generators[0].size())
 
-			train_sizes.append(dataset.train_generators[0].size())
-			model.fit_generator(dataset.train_generators[0], 
-				dataset.train_generators[0].size(), 
+			train_sizes.append(dataset.train_generators[1].size())
+
+			model.fit_generator(dataset.train_generators[1], 
+				dataset.train_generators[1].size(),
 				nb_epoch=1, 
 				verbose=1,
 				callbacks=[epoch_history])
 
 		history.on_epoch_end(epoch, history, train_sizes, valid_sizes)
-		saver.on_epoch_end(epoch, logs={k: v[-1] for k, v in history.history.items()})
+		logs = {k: v[-1] for k, v in history.history.items()}
+		print([k for k in log.keys()])
+		saver.on_epoch_end(epoch, logs=)
 
 class HistoryMultiplexer(Callback):
 	def on_train_begin(self, logs=None):
@@ -83,9 +86,7 @@ class HistoryMultiplexer(Callback):
 				logs[k] = sum([val*(valid_sizes[i]/valid_size) for i, val in enumerate(v)])
 			else:
 				logs[k] = sum([val*(train_sizes[i]/train_size) for i, val in enumerate(v)])
-
-
-
+		return logs
 
 def download_bottleneck_features():
 	for i in [1,2,4,5,6]:
