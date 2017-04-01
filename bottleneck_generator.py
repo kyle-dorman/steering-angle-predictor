@@ -21,8 +21,8 @@ class BottleneckData(object):
 
 			self.video_datasets[child] = (os.path.join(image_data,child) , "bottleneck_data/{}.p".format(child))
 
-		self.datasets = [VideoDataset("HMB_1", "image_data/HMB_1", "bottleneck_data/HMB_1.p", self.batch_size, self.video_frames, verbose=verbose)]
-		#self.datasets = [VideoDataset(key, video_data[0], video_data[1], self.batch_size, self.video_frames, verbose=verbose) for key, video_data in self.video_datasets.items()]
+		#self.datasets = [VideoDataset("HMB_1", "image_data/HMB_1", "bottleneck_data/HMB_1.p", self.batch_size, self.video_frames, verbose=verbose)]
+		self.datasets = [VideoDataset(key, video_data[0], video_data[1], self.batch_size, self.video_frames, verbose=verbose) for key, video_data in self.video_datasets.items()]
 
 	def bottleneck_shape(self):
 		return self.datasets[0].bottleneck_shape()

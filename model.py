@@ -35,6 +35,7 @@ def train_model(model, data, epochs=1, batch_size=32, video_frames=100):
 	all_history = HistoryMultiplexer()
 	all_history.on_train_begin()
 	saver = ModelCheckpoint(full_path("model.cptk"), verbose=1, save_best_only=True, period=1)
+	saver.set_model(model)
 
 	for epoch in range(epochs):
 		epoch_history = History()
@@ -53,15 +54,15 @@ def train_model(model, data, epochs=1, batch_size=32, video_frames=100):
 				validation_data=dataset.valid_generators[0], 
 				nb_val_samples=dataset.valid_generators[0].size())
 
-			epoch_history.on_epoch_end(epoch, history.history)
-
+			epoch_history.on_epoch_end(epoch, {k: v[0] for k,v in history.history.items()})			
+	
 			train_sizes.append(dataset.train_generators[1].size())
 			history = model.fit_generator(dataset.train_generators[1],
 				dataset.train_generators[1].size(),
 				nb_epoch=1, 
 				verbose=1)
 
-			epoch_history.on_epoch_end(epoch, history.history)
+			epoch_history.on_epoch_end(epoch, {k: v[0] for k,v in history.history.items()})
 
 		all_history.on_epoch_end(epoch, epoch_history, train_sizes, valid_sizes)
 		logs = {k: v[-1] for k, v in all_history.history.items()}
