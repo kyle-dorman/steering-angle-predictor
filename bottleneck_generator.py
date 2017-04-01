@@ -10,7 +10,7 @@ from collections import deque
 from util import full_path, open_pickle_file, open_large_pickle_file
 
 class BottleneckData(object):
-	def __init__(self, batch_size=32, video_frames=100):
+	def __init__(self, batch_size=32, video_frames=100, verbose=False):
 		self.batch_size = batch_size
 		self.video_frames = video_frames
 		image_data = full_path("image_data")
@@ -21,8 +21,8 @@ class BottleneckData(object):
 
 			self.video_datasets[child] = (os.path.join(image_data,child) , "bottleneck_data/{}.p".format(child))
 
-		self.datasets = [VideoDataset("HMB_1", "image_data/HMB_1", "bottleneck_data/HMB_1.p", self.batch_size, self.video_frames)]
-		#self.datasets = [VideoDataset(key, video_data[0], video_data[1], self.batch_size, self.video_frames) for key, video_data in self.video_datasets.items()]
+		self.datasets = [VideoDataset("HMB_1", "image_data/HMB_1", "bottleneck_data/HMB_1.p", self.batch_size, self.video_frames, verbose=verbose)]
+		#self.datasets = [VideoDataset(key, video_data[0], video_data[1], self.batch_size, self.video_frames, verbose=verbose) for key, video_data in self.video_datasets.items()]
 
 	def bottleneck_shape(self):
 		return self.datasets[0].bottleneck_shape()
@@ -31,7 +31,7 @@ class BottleneckData(object):
 		return self.datasets[0].vehicle_shape()
 
 class VideoDataset(object):
-	def __init__(self, name, video_folder, bottleneck_data_file, batch_size, video_frames):
+	def __init__(self, name, video_folder, bottleneck_data_file, batch_size, video_frames, verbose=False):
 		self.name = name
 		self.video_folder = video_folder
 		self.bottleneck_data_file = bottleneck_data_file
@@ -47,6 +47,9 @@ class VideoDataset(object):
 		self.valid_generators = []
 		self.train_generators = []
 		self.reset_generators()
+
+		if verbose:
+			self.info()
 
 	def reset_generators(self):
 		MIN_IMAGE_SEQUENCE = 600 # 30 seconds as 20 fps
@@ -96,8 +99,8 @@ class BottleneckDataIterator(object):
 		self.bottleneck_queue = deque()
 		self.vehicle_data_queue = deque()
 		for i in range(video_frames):
-			self.bottleneck_queue.append(np.zeros(self.dataset.bottleneck_shape()[1:]))
-			self.vehicle_data_queue.append(np.zeros(self.dataset.vehicle_shape()[1:]))
+			self.bottleneck_queue.append(np.zeros(self.dataset.bottleneck_shape()[2:]))
+			self.vehicle_data_queue.append(np.zeros(self.dataset.vehicle_shape()[2:]))
 
 	def __next__(self):
 		return self.next()
