@@ -47,7 +47,7 @@ def train_model(model, data, config, include_tensorboard):
 	else:
 	 tensorborad = Callback()
 
-	for epoch in range(epochs):
+	for epoch in range(config.max_epochs):
 		epoch_history = History()
 		epoch_history.on_train_begin()
 		valid_sizes = []

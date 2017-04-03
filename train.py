@@ -22,23 +22,23 @@ def put_tensorboard_logs():
 class Config(object):
 	def __init__(self, batch_size, max_epochs, video_frames, min_delta, patience):
 		self.max_epochs = max_epochs
-		self.batch_size
+		self.batch_size = batch_size
 		self.min_delta = min_delta
 		self.patience = patience
 		self.video_frames = video_frames
 
 	def info(self):
 		print("batch_size:", self.batch_size)
-		print("epochs:", epochs)
+		print("epochs:", self.max_epochs)
 		print("video_frames:", self.video_frames)
 		print("min_delta:", self.min_delta)
 		print("patience:", self.patience)
 
 	def model_file(self):
-		return "model_{}_{}_{}_{}_{}.ckpt".format(self.batch_size, self.max_epochs, self.video_frames, self.min_delta, .self.patience)
+		return "model_{}_{}_{}_{}_{}.ckpt".format(self.batch_size, self.max_epochs, self.video_frames, self.min_delta, self.patience)
 
 	def csv_log_file(self):
-		return "model_logs_{}_{}_{}_{}_{}.csv".format(self.batch_size, self.max_epochs, self.video_frames, self.min_delta, .self.patience)
+		return "model_logs_{}_{}_{}_{}_{}.csv".format(self.batch_size, self.max_epochs, self.video_frames, self.min_delta, self.patience)
 
 
 flags = tf.app.flags
