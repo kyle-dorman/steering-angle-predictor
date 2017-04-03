@@ -47,7 +47,8 @@ def train_model(model, data, config, include_tensorboard):
 	else:
 	 tensorborad = Callback()
 
-	for epoch in range(config.max_epochs):
+	epoch = 0
+	while(epoch <= config.max_epochs && model.stop_training == False):
 		epoch_history = History()
 		epoch_history.on_train_begin()
 		valid_sizes = []
@@ -81,13 +82,9 @@ def train_model(model, data, config, include_tensorboard):
 		early_stopping.on_epoch_end(epoch, epoch_logs)
 		csv_logger.on_epoch_end(epoch, epoch_logs)
 		tensorborad.on_epoch_end(epoch, epoch_logs)
+		epoch+= 1
 
-		if model.stop_training:
-			early_stopping.on_train_end()
-			csv_logger.on_train_end()
-			tensorborad.on_train_end()
-			return None
-
+	early_stopping.on_train_end()
 	csv_logger.on_train_end()
 	tensorborad.on_train_end(_)
 
