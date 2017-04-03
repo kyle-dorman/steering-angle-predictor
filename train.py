@@ -5,7 +5,7 @@ from keras.layers import Input
 import zipfile
 
 from bottleneck_generator import BottleneckData
-from model import create_model, train_model, upload_s3, zipdir
+from model import create_model, train_model, upload_s3, zipdir, stop_instanc
 
 def put_tensorboard_logs():
   data_folder = full_path('logs')
@@ -24,7 +24,8 @@ FLAGS = flags.FLAGS
 flags.DEFINE_integer('batch_size', 32, 'The batch size for the generator')
 flags.DEFINE_integer('epochs', 1, 'Number of training examples.')
 flags.DEFINE_integer('video_frames', 50, 'Number of video frames to include in each cycle.')
-flags.DEFINE_bool('verbose', False, 'Whether to use verbose logging when constructing the data object.')
+flags.DEFINE_boolean('verbose', False, 'Whether to use verbose logging when constructing the data object.')
+flags.DEFINE_boolean('stop', True, 'Stop aws instance after finished running.')
 
 def main(_):
 	print("Using batch_size", FLAGS.batch_size)
@@ -41,6 +42,9 @@ def main(_):
 	put_tensorboard_logs()
 	upload_s3("model_logs.csv")
 	upload_s3("model.cptk")
+
+	if FLAGS.stop:
+		stop_instance()
 
 
 if __name__ == '__main__':
