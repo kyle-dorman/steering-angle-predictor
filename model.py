@@ -31,18 +31,21 @@ def create_model(image_inputs, vehicle_inputs, video_frames=100):
 
 	return model
 
-def train_model(model, data, epochs=1, batch_size=32, video_frames=100):
+def train_model(model, data, config, include_tensorboard):
 	model_history = History()
 	model_history.on_train_begin()
-	saver = ModelCheckpoint(full_path("model.cptk"), verbose=1, save_best_only=True, period=1)
+	saver = ModelCheckpoint(full_path(config.model_file()), verbose=1, save_best_only=True, period=1)
 	saver.set_model(model)
-	early_stopping = EarlyStopping(min_delta=0.1, patience=10, verbose=1)
+	early_stopping = EarlyStopping(min_delta=config.min_delta, patience=config.patience, verbose=1)
 	early_stopping.set_model(model)
 	early_stopping.on_train_begin()
-	csv_logger = CSVLogger(full_path("model_logs.csv"))
+	csv_logger = CSVLogger(full_path(config.csv_log_file()))
 	csv_logger.on_train_begin()
-	tensorborad = TensorBoard(histogram_freq=10, write_images=True)
-	tensorborad.set_model(model)
+	if include_tensorboard:
+		tensorborad = TensorBoard(histogram_freq=10, write_images=True)
+		tensorborad.set_model(model)
+	else:
+	 tensorborad = Callback()
 
 	for epoch in range(epochs):
 		epoch_history = History()
@@ -51,6 +54,7 @@ def train_model(model, data, epochs=1, batch_size=32, video_frames=100):
 		train_sizes = []
 		for dataset in data.datasets:
 			model.reset_states()
+			dataset.reset_generators()
 
 			valid_sizes.append(dataset.valid_generators[0].size())
 			train_sizes.append(dataset.train_generators[0].size())
@@ -85,7 +89,7 @@ def train_model(model, data, epochs=1, batch_size=32, video_frames=100):
 			return None
 
 	csv_logger.on_train_end()
-	tensorborad.on_train_end()
+	tensorborad.on_train_end(_)
 
 def average_logs(history, train_sizes, valid_sizes):
 	valid_sample_size = sum(valid_sizes)
@@ -94,14 +98,10 @@ def average_logs(history, train_sizes, valid_sizes):
 
 	for k, v in history.history.items():
 		if "val_" in k:
-			logs[k] = sum([val*(valid_sizes[i]/valid_size) for i, val in enumerate(v)])
+			logs[k] = sum([val*(valid_sizes[i]/valid_sample_size) for i, val in enumerate(v)])
 		else:
-			logs[k] = sum([val*(train_sizes[i]/train_size) for i, val in enumerate(v)])
+			logs[k] = sum([val*(train_sizes[i]/train_sample_size) for i, val in enumerate(v)])
 	return logs
 
 def last_logs(history):
 	return {k: v[-1] for k, v in history.history.items()}
-
-def download_bottleneck_features():
-	for i in [1,2,4,5,6]:
-		download_s3("bottleneck_data/HMB_{}.p".format(i))

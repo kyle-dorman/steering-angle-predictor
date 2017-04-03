@@ -15,7 +15,8 @@ import os
 
 def train_bottleneck_features(batch_size, save):
 	data = OrigData(batch_size=batch_size)
-
+	zipfile_name = 'tensorboard.zip'
+	zipfile_path = full_path(zipfile_name)
 	inputs = Input(shape=data.shape())
 	# create the base pre-trained model
 	base_model = VGG16(input_tensor=inputs, include_top=False)
