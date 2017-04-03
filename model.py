@@ -5,7 +5,7 @@ from keras.layers import Input
 from keras.layers.core import Dense, Reshape, Dropout
 from keras.models import Model
 from keras.layers.recurrent import GRU
-from keras.callbacks import History, ModelCheckpoint, Callback
+from keras.callbacks import History, ModelCheckpoint, Callback, EarlyStopping, CSVLogger, TensorBoard
 
 from util import download_s3, full_path
 from bottleneck_generator import BottleneckData
@@ -36,6 +36,13 @@ def train_model(model, data, epochs=1, batch_size=32, video_frames=100):
 	model_history.on_train_begin()
 	saver = ModelCheckpoint(full_path("model.cptk"), verbose=1, save_best_only=True, period=1)
 	saver.set_model(model)
+	early_stopping = EarlyStopping(min_delta=0.1, patience=10, verbose=1)
+	early_stopping.set_model(model)
+	early_stopping.on_train_begin()
+	csv_logger = CSVLogger(full_path("model_logs.csv"))
+	csv_logger.on_train_begin()
+	tensorborad = TensorBoard(histogram_freq=10, write_images=True)
+	tensorborad.set_model(model)
 
 	for epoch in range(epochs):
 		epoch_history = History()
@@ -67,6 +74,18 @@ def train_model(model, data, epochs=1, batch_size=32, video_frames=100):
 		epoch_logs = average_logs(epoch_history, train_sizes, valid_sizes)
 		model_history.on_epoch_end(epoch, logs=epoch_logs)
 		saver.on_epoch_end(epoch, logs=epoch_logs)
+		early_stopping.on_epoch_end(epoch, epoch_logs)
+		csv_logger.on_epoch_end(epoch, epoch_logs)
+		tensorborad.on_epoch_end(epoch, epoch_logs)
+
+		if model.stop_training:
+			early_stopping.on_train_end()
+			csv_logger.on_train_end()
+			tensorborad.on_train_end()
+			return None
+
+	csv_logger.on_train_end()
+	tensorborad.on_train_end()
 
 def average_logs(history, train_sizes, valid_sizes):
 	valid_sample_size = sum(valid_sizes)

@@ -97,6 +97,23 @@ def untar_data(tar_file_name):
   with tarfile.open(tar_file_name, 'r:gz') as in_file:
     in_file.extractall()
 
+def zipdir(path, ziph):
+  # ziph is zipfile handle
+  for root, dirs, files in os.walk(path):
+    for file in files:
+      ziph.write(os.path.relpath(os.path.join(root, file), os.path.join(path, '..')))
+
+def put_tensorboard_logs():
+  data_folder = full_path('logs')
+
+  print("Zipping folder", data_folder)
+  zf = zipfile.ZipFile(zipfile_path, "w")
+  zipdir(data_folder, zf)
+  zf.close()
+  print("Finished zipping folder", data_folder)
+
+  upload_s3(zipfile_name)
+
 def open_pickle_file(file_name):
   """
   open a pickled file

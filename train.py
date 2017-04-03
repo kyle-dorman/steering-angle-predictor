@@ -2,9 +2,21 @@
 
 import tensorflow as tf
 from keras.layers import Input
+import zipfile
 
 from bottleneck_generator import BottleneckData
-from model import create_model, train_model
+from model import create_model, train_model, upload_s3, zipdir
+
+def put_tensorboard_logs():
+  data_folder = full_path('logs')
+
+  print("Zipping folder", data_folder)
+  zf = zipfile.ZipFile(zipfile_path, "w")
+  zipdir(data_folder, zf)
+  zf.close()
+  print("Finished zipping folder", data_folder)
+
+  upload_s3(zipfile_name)
 
 flags = tf.app.flags
 FLAGS = flags.FLAGS
@@ -26,6 +38,10 @@ def main(_):
 
 	rnn_model = create_model(bottleneck_input, vehicle_inputs, video_frames=FLAGS.video_frames) 
 	train_model(rnn_model, data, epochs=FLAGS.epochs, batch_size=FLAGS.batch_size, video_frames=FLAGS.video_frames)
+	put_tensorboard_logs()
+	upload_s3("model_logs.csv")
+	upload_s3("model.cptk")
+
 
 if __name__ == '__main__':
 	tf.app.run()
