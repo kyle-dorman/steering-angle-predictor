@@ -32,8 +32,8 @@ def create_model(image_inputs, vehicle_inputs, video_frames=100):
 	return model
 
 def train_model(model, data, epochs=1, batch_size=32, video_frames=100):
-	all_history = HistoryMultiplexer()
-	all_history.on_train_begin()
+	model_history = History()
+	model_history.on_train_begin()
 	saver = ModelCheckpoint(full_path("model.cptk"), verbose=1, save_best_only=True, period=1)
 	saver.set_model(model)
 
@@ -44,53 +44,44 @@ def train_model(model, data, epochs=1, batch_size=32, video_frames=100):
 		train_sizes = []
 		for dataset in data.datasets:
 			model.reset_states()
+
 			valid_sizes.append(dataset.valid_generators[0].size())
 			train_sizes.append(dataset.train_generators[0].size())
-
-			history = model.fit_generator(dataset.train_generators[0],
+			fit_history = model.fit_generator(dataset.train_generators[0],
 				dataset.train_generators[0].size(), 
 				nb_epoch=1, 
 				verbose=1, 
 				validation_data=dataset.valid_generators[0], 
 				nb_val_samples=dataset.valid_generators[0].size())
 
-			epoch_history.on_epoch_end(epoch, {k: v[0] for k,v in history.history.items()})			
-	
+			epoch_history.on_epoch_end(epoch, last_logs(fit_history))
+
 			train_sizes.append(dataset.train_generators[1].size())
-			history = model.fit_generator(dataset.train_generators[1],
+			fit_history = model.fit_generator(dataset.train_generators[1],
 				dataset.train_generators[1].size(),
 				nb_epoch=1, 
 				verbose=1)
 
-			epoch_history.on_epoch_end(epoch, {k: v[0] for k,v in history.history.items()})
+			epoch_history.on_epoch_end(epoch, last_logs(fit_history))
 
-		all_history.on_epoch_end(epoch, epoch_history, train_sizes, valid_sizes)
-		logs = {k: v[-1] for k, v in all_history.history.items()}
-		print([k for k in logs.keys()])
-		saver.on_epoch_end(epoch, logs=logs)
+		epoch_logs = average_logs(epoch_history, train_sizes, valid_sizes)
+		model_history.on_epoch_end(epoch, logs=epoch_logs)
+		saver.on_epoch_end(epoch, logs=epoch_logs)
 
-class HistoryMultiplexer(Callback):
-	def on_train_begin(self, logs=None):
-		self.history = {}
-		self.epoch = []
+def average_logs(history, train_sizes, valid_sizes):
+	valid_sample_size = sum(valid_sizes)
+	train_sample_size = sum(train_sizes)
+	logs = {}
 
-	def on_epoch_end(self, epoch, history, train_sizes, valid_sizes):
-		self.epoch.append(epoch)
-		logs = self.logs(history, train_sizes, valid_sizes)
-		for k, v in logs.items():
-			self.history.setdefault(k, []).append(v)
+	for k, v in history.history.items():
+		if "val_" in k:
+			logs[k] = sum([val*(valid_sizes[i]/valid_size) for i, val in enumerate(v)])
+		else:
+			logs[k] = sum([val*(train_sizes[i]/train_size) for i, val in enumerate(v)])
+	return logs
 
-	def logs(self, history, train_sizes, valid_sizes):
-		valid_size = sum(valid_sizes)
-		train_size = sum(train_sizes)
-		logs = {}
-		print('history:', history.history)
-		for k, v in history.history.items():
-			if "val_" in k:
-				logs[k] = sum([val*(valid_sizes[i]/valid_size) for i, val in enumerate(v)])
-			else:
-				logs[k] = sum([val*(train_sizes[i]/train_size) for i, val in enumerate(v)])
-		return logs
+def last_logs(history):
+	return {k: v[-1] for k, v in history.history.items()}
 
 def download_bottleneck_features():
 	for i in [1,2,4,5,6]:

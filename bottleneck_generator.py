@@ -21,8 +21,8 @@ class BottleneckData(object):
 
 			self.video_datasets[child] = (os.path.join(image_data,child) , "bottleneck_data/{}.p".format(child))
 
-		#self.datasets = [VideoDataset("HMB_1", "image_data/HMB_1", "bottleneck_data/HMB_1.p", self.batch_size, self.video_frames, verbose=verbose)]
-		self.datasets = [VideoDataset(key, video_data[0], video_data[1], self.batch_size, self.video_frames, verbose=verbose) for key, video_data in self.video_datasets.items()]
+		self.datasets = [VideoDataset("HMB_1", "image_data/HMB_1", "bottleneck_data/HMB_1.p", self.batch_size, self.video_frames, verbose=verbose)]
+		# self.datasets = [VideoDataset(key, video_data[0], video_data[1], self.batch_size, self.video_frames, verbose=verbose) for key, video_data in self.video_datasets.items()]
 
 	def bottleneck_shape(self):
 		return self.datasets[0].bottleneck_shape()
@@ -85,7 +85,7 @@ class VideoDataset(object):
 		print("Dataset", self.name, "is size", self.video_length)
 		print("Bottleneck shape:", self.bottleneck_shape(), "vehicle shape:", self.vehicle_shape())
 		print("Valid: start:", self.valid_generators[0].start_index, "end:", self.valid_generators[0].end_index)
-		print("Test 1: start:", self.train_generators[0].start_index, "end:", self.train_generators[0].end_index)
+		print("Test 1 start:", self.train_generators[0].start_index, "end:", self.train_generators[0].end_index)
 		print("Test 2 start:", self.train_generators[1].start_index, "end:", self.train_generators[1].end_index)
 
 class BottleneckDataIterator(object):
@@ -128,10 +128,11 @@ class BottleneckDataIterator(object):
 		result['angle_torque_speed'] = np.array(result['angle_torque_speed'])
 
 		length = len(result['angle_torque_speed'])
-		for i in range(length-6, length):
+		angles_to_remove = min(6, self.video_frames)
+		for i in range(length-angles_to_remove, length):
 			### don't expose speed for the last 5 frames
 			result['angle_torque_speed'][i][0] = 0
-		return (result, labels)
+		return (result, np.array(labels))
 
 	def size(self):
 		return self.end_index - self.start_index
