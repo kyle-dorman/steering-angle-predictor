@@ -48,8 +48,7 @@ def train_model(model, data, config, include_tensorboard):
 	 tensorborad = Callback()
 
 	epoch = 0
-	while(epoch <= config.max_epochs and (hasattr(self, 'callback_model') == False or 
-		early_stopping.model.stop_training == False):
+	while(epoch <= config.max_epochs and (hasattr(early_stopping.model, 'callback_model') == False or early_stopping.model.stop_training == False)):
 		epoch_history = History()
 		epoch_history.on_train_begin()
 		valid_sizes = []
@@ -87,7 +86,7 @@ def train_model(model, data, config, include_tensorboard):
 
 	early_stopping.on_train_end()
 	csv_logger.on_train_end()
-	tensorborad.on_train_end(_)
+	tensorborad.on_train_end({})
 
 def average_logs(history, train_sizes, valid_sizes):
 	valid_sample_size = sum(valid_sizes)
