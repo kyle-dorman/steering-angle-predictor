@@ -37,6 +37,10 @@ def download_s3(rel_path):
 	bucket.download_file(key_name + rel_path, full_path(rel_path), Callback=DownloadProgressPercentage(rel_path))
 	print("Finished downloading file", rel_path)
 
+def download_bottleneck_features():
+  for i in [1,2,4,5,6]:
+    download_s3("bottleneck_data/HMB_{}.p".format(i))
+
 class UploadProgressPercentage(object):
   def __init__(self, filename):
     self._filename = filename
@@ -102,17 +106,6 @@ def zipdir(path, ziph):
   for root, dirs, files in os.walk(path):
     for file in files:
       ziph.write(os.path.relpath(os.path.join(root, file), os.path.join(path, '..')))
-
-def put_tensorboard_logs():
-  data_folder = full_path('logs')
-
-  print("Zipping folder", data_folder)
-  zf = zipfile.ZipFile(zipfile_path, "w")
-  zipdir(data_folder, zf)
-  zf.close()
-  print("Finished zipping folder", data_folder)
-
-  upload_s3(zipfile_name)
 
 def open_pickle_file(file_name):
   """

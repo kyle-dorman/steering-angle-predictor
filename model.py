@@ -53,7 +53,9 @@ def train_model(model, data, config, include_tensorboard):
 		epoch_history.on_train_begin()
 		valid_sizes = []
 		train_sizes = []
+		print("Epoch:", epoch)
 		for dataset in data.datasets:
+			print("dataset:", dataset.name)
 			model.reset_states()
 			dataset.reset_generators()
 
@@ -62,7 +64,7 @@ def train_model(model, data, config, include_tensorboard):
 			fit_history = model.fit_generator(dataset.train_generators[0],
 				dataset.train_generators[0].size(), 
 				nb_epoch=1, 
-				verbose=1, 
+				verbose=0, 
 				validation_data=dataset.valid_generators[0], 
 				nb_val_samples=dataset.valid_generators[0].size())
 
@@ -72,7 +74,7 @@ def train_model(model, data, config, include_tensorboard):
 			fit_history = model.fit_generator(dataset.train_generators[1],
 				dataset.train_generators[1].size(),
 				nb_epoch=1, 
-				verbose=1)
+				verbose=0)
 
 			epoch_history.on_epoch_end(epoch, last_logs(fit_history))
 
