@@ -48,7 +48,8 @@ def train_model(model, data, config, include_tensorboard):
 	 tensorborad = Callback()
 
 	epoch = 0
-	while(epoch <= config.max_epochs and  model.stop_training == False):
+	while(epoch <= config.max_epochs and (hasattr(self, 'callback_model') == False or 
+		early_stopping.model.stop_training == False):
 		epoch_history = History()
 		epoch_history.on_train_begin()
 		valid_sizes = []
