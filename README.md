@@ -15,9 +15,9 @@ The [dataset](https://github.com/udacity/self-driving-car/tree/master/datasets/C
 
 Below are three images from the car:
 
-					Left       |  				Center  	 |				Right
-:-------------------:|:-------------------:|:-------------------:
- ![alt text][left] 	 | ![alt text][center] |  ![alt text][right]
+Left | Center | Right |
+:---:|:---:|:---:|
+![alt text][left] |![alt text][center] |![alt text][right] |
 
 I have included the first 50 entries of the "real time" data in the folder `example_data`. Some of real time data is included with each image. This data includes angle, torque, speed, lat, long, and alt in the file `interpolated.csv`. Other interesting data not in `interpolated.csv` includes brake, gear, and throttle. After looking at these three csv files, I didn't see a lot of variability in the data and decided for simplicity and lack of usefulness, the not use it. I also decided not to use latitude, longitude, and altitude because they don't seem useful for predicting steering angle. 
 
