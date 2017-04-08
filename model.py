@@ -3,18 +3,36 @@
 from keras import layers
 from keras.layers import Input
 from keras.layers.core import Dense, Reshape, Dropout
+from keras.layers.normalization import BatchNormalization
 from keras.models import Model
 from keras.layers.recurrent import GRU
+from keras.applications.vgg16 import VGG16, preprocess_input
 from keras.callbacks import History, ModelCheckpoint, Callback, EarlyStopping, CSVLogger, TensorBoard
+import numpy as np
+import scipy
 
 from util import download_s3, full_path
 from bottleneck_generator import BottleneckData
 
-def model(load_saved=False):
-	if load_saved:
-		print("load_saved")
-	else:
-		create_model()
+def get_image_processor_model(image_input):
+	model = VGG16(input_tensor=image_input, include_top=False)
+	output = BatchNormalization()(model.output)
+	return Model(input=image_input, output=output)
+
+def process_images(image_processor_model, images, batch_size, i_height, i_width):
+	resized_images = np.array([scipy.misc.imresize(image, (i_height, i_width)) for image in images], dtype=np.float32)
+	preprocess_images = preprocess_input(resized_images)
+	return image_processor_model.predict(preprocess_images, batch_size=3)
+
+def predict(reccurent_model, features):
+	image_inputs = features[0]
+	vehicle_data_inputs = features[1]
+	# image_inputs = [np.zeros(image_input.shape()) for i in range(batch_size - 1)]
+	# image_inputs.append(image_input)
+	# vehicle_data_inputs = [np.zeros(vehicle_data.shape()) for i in range(batch_size - 1)]
+	# vehicle_data_inputs.append(vehicle_data_inputs)
+
+	return reccurent_model.predict({'bottleneck_left_right_center': image_inputs, 'angle_torque_speed': vehicle_data_inputs})
 
 def create_model(image_inputs, vehicle_inputs, video_frames=100):
 	image_x = Reshape((video_frames, -1))(image_inputs)
@@ -48,7 +66,8 @@ def train_model(model, data, config, include_tensorboard):
 	 tensorborad = Callback()
 
 	epoch = 0
-	while(epoch <= config.max_epochs and (hasattr(early_stopping.model, 'callback_model') == False or early_stopping.model.stop_training == False)):
+	stop = False
+	while(epoch <= config.max_epochs and stop == False):
 		epoch_history = History()
 		epoch_history.on_train_begin()
 		valid_sizes = []
@@ -85,6 +104,9 @@ def train_model(model, data, config, include_tensorboard):
 		csv_logger.on_epoch_end(epoch, epoch_logs)
 		tensorborad.on_epoch_end(epoch, epoch_logs)
 		epoch+= 1
+
+		if early_stopping.stopped_epoch > 0:
+			stop = True
 
 	early_stopping.on_train_end()
 	csv_logger.on_train_end()

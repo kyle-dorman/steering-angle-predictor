@@ -32,9 +32,6 @@ class VideoGenerator(object):
 		self.batch_index = 0
 		self.direction = 'left'
 
-		# determine the left, right, center order for the first 3 elements
-		self.direction_indicies = np.array([frame.split("_")[0] for frame in self.df['frame_id'][0:3].values])
-
 	def size(self):
 		return len(self.df.index)//3
 
