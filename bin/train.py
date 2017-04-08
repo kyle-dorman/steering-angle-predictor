@@ -3,10 +3,14 @@
 import tensorflow as tf
 from keras.layers import Input
 import zipfile
+import os
 
-from bottleneck_generator import BottleneckData
-from model import create_model, train_model
-from util import upload_s3, zipdir, stop_instance, full_path
+from steering.bottleneck_generator import BottleneckData
+from steering.model import create_model, train_model
+from steering.util import upload_s3, zipdir, stop_instance, full_path
+
+project_path, x = os.path.split(os.path.dirname(os.path.realpath(__file__)))
+sys.path.append(project_path)
 
 def put_tensorboard_logs():
   data_folder = full_path('logs')

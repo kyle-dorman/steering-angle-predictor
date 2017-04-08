@@ -4,13 +4,14 @@ import os
 import glob
 import shutil
 
-from util import download_s3
-from util import full_path
-from util import untar_data
+from steering.util import download_s3, full_path, untar_data
 
 _file = "Ch2_002"
 _filegz = _file + ".tar.gz"
 _folder = "orig_data"
+
+project_path, x = os.path.split(os.path.dirname(os.path.realpath(__file__)))
+sys.path.append(project_path)
 
 def download():
 	if os.path.isfile(full_path(_filegz)) == False:

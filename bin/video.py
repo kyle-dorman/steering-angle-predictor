@@ -12,9 +12,12 @@ from keras.layers import Input
 import tensorflow as tf
 import keras.backend as K
 
-from result_generator import ImageGenerator
-import draw
-from model import get_image_processor_model, predict, process_images
+from steering.result_generator import ImageGenerator
+from steering import draw
+from steering.model import get_image_processor_model, predict, process_images
+
+project_path, x = os.path.split(os.path.dirname(os.path.realpath(__file__)))
+sys.path.append(project_path)
 
 def build_video(output, model_file, number_frames, batch_size, dataset, use_gpu):
 	video_folder = "image_data/" + dataset

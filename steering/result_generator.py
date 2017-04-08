@@ -4,7 +4,7 @@ import pandas as pd
 import numpy as np
 from keras.preprocessing.image import img_to_array, load_img
 
-from util import full_path
+from steering.util import full_path
 
 class ImageGenerator(object):
 	def __init__(self, name, video_folder, video_frames):

@@ -7,7 +7,7 @@ import random
 import pandas as pd
 from collections import deque
 
-from util import full_path, open_pickle_file, open_large_pickle_file
+from steering.util import full_path, open_pickle_file, open_large_pickle_file
 
 class BottleneckData(object):
 	def __init__(self, batch_size=32, video_frames=100, verbose=False):

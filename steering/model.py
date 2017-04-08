@@ -11,8 +11,8 @@ from keras.callbacks import History, ModelCheckpoint, Callback, EarlyStopping, C
 import numpy as np
 import scipy
 
-from util import download_s3, full_path
-from bottleneck_generator import BottleneckData
+from steering.util import download_s3, full_path
+from steering.bottleneck_generator import BottleneckData
 
 def get_image_processor_model(image_input):
 	model = VGG16(input_tensor=image_input, include_top=False)

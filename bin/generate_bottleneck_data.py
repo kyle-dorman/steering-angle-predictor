@@ -1,7 +1,7 @@
 #!/bin/python
 
-from orig_generator import OrigData
-from util import full_path, upload_s3, stop_instance
+from steering.orig_generator import OrigData
+from steering.util import full_path, upload_s3, stop_instance
 
 import tensorflow as tf
 from keras.layers.normalization import BatchNormalization
@@ -12,6 +12,9 @@ from keras.layers import Input
 import pickle
 import time
 import os
+
+project_path, x = os.path.split(os.path.dirname(os.path.realpath(__file__)))
+sys.path.append(project_path)
 
 def train_bottleneck_features(batch_size, save):
 	data = OrigData(batch_size=batch_size)

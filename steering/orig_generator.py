@@ -7,7 +7,7 @@ from keras.preprocessing.image import img_to_array, load_img
 from keras.applications.vgg16 import preprocess_input
 import scipy.misc
 
-from util import full_path
+from steering.util import full_path
 
 class OrigData(object):
 	def __init__(self, batch_size=32):
