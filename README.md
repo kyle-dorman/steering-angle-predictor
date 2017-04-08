@@ -23,9 +23,9 @@ I have included the first 50 entries of the "real time" data in the folder `exam
 Based on my short exploration of the data, I decided to train my model using the left, right and center images from the car as well as the speed, steering wheel angle, and torque. 
 
 ### Training
-The model I built can be broken out into two steps. The first is to utilize a pre-trained image classifier like VGG16 to essentially extract image features. For each time-stamp, I applied VGG16 to the left, right and center image and saved the resulting tensors as pickle files. This uses the simple generator in `orig_generator.py` and is trained on aws using the script `generate_bottleneck_data.py`. 
+The model I built can be broken out into two steps. The first is to utilize a pre-trained image classifier like VGG16 to essentially extract image features. For each time-stamp, I applied VGG16 to the left, right and center image and saved the resulting tensors as pickle files. This uses the simple generator in `steering/orig_generator.py` and is trained on aws using the script `steering/generate_bottleneck_data.py`. 
 
-The second step was to train a recurrent network on the processed images and the real time vehicle data (speed, torque, steering angle). For this I used a single GRU layer with a output dimensionality of 256. When training the model I used the last 50 frames as input to the GRU. I chose 50 frames because one of the winning projects suggested this worked best for them. The video is 20 frames per second so this equates to looking at the last 2.5 seconds of information. To really take advantage of the GRU's memory capabilities, I set it to run "statefully". In Keras, this meant I had to declare a fixed batch_size, I used 32. This all meant that I was passing a 6D tensor (32, 50, 3, bottleneck_data_shape) and a 3D tensor (32, 50, 3) to my model which definitely added a complexity to my generator (`bottleneck_generator.py`). 
+The second step was to train a recurrent network on the processed images and the real time vehicle data (speed, torque, steering angle). For this I used a single GRU layer with a output dimensionality of 256. When training the model I used the last 50 frames as input to the GRU. I chose 50 frames because one of the winning projects suggested this worked best for them. The video is 20 frames per second so this equates to looking at the last 2.5 seconds of information. To really take advantage of the GRU's memory capabilities, I set it to run "statefully". In Keras, this meant I had to declare a fixed batch_size, I used 32. This all meant that I was passing a 6D tensor (32, 50, 3, bottleneck_data_shape) and a 3D tensor (32, 50, 3) to my model which definitely added a complexity to my generator (`steering/bottleneck_generator.py`). 
 
 One concept I struggled with was how to split up my data for testing and validation. I ended up devising a system by which I randomly selected a continuous 20% from the  middle of each video and used that as the validation data. I then use the continuous data from before and after the validation data as the testing data. To ensure clean training, I reset the model state in between each video training sequence. At the beginning of each epoch I randomly reset the validation sequence starting point. 
 
@@ -36,7 +36,7 @@ The model was trained on aws p2-xlarge instance. It took about 15 minutes to tra
 ## Data extraction and model training steps
 
 ### Step 1: Setup aws environment
-Checkout environment file by running `conda env create -f environment.yml`. On aws, clone this project and run `python get_orig_data.py` to download original data set.
+Checkout environment file by running `conda env create -f environment.yml`. On aws, clone this project and run `python ./bin/get_orig_data.py` to download original data set.
 
 ### Step 2: Convert ROSBAGs to images and csv files
 clone [this](https://github.com/kyle-dorman/udacity-driving-reader) project and run `./run-bagdump.sh -i ~/steering-angle-predictor/orig_data/Ch2_002 -o ~/steering-angle-predictor/image_data` to convert data files to CSVs and images. Must be an absolute path to this project. 
@@ -44,13 +44,13 @@ clone [this](https://github.com/kyle-dorman/udacity-driving-reader) project and 
 Note: I ran into some issues getting docker running on the carnd ami, but was able to get it installed eventually using [this walk-through](https://docs.docker.com/engine/installation/linux/ubuntu/#os-requirements).
 
 ### Step 3: generate processed images
-run `python generate_bottleneck_data.py` to run images through VGG16 and save results to S3. Model training was broken up into image processing (VGG16) and recurrent training to allow (in theory) for the second half to be trained locally on my machine.
+run `python ./bin/generate_bottleneck_data.py` to run images through VGG16 and save results to S3. Model training was broken up into image processing (VGG16) and recurrent training to allow (in theory) for the second half to be trained locally on my machine.
 
 ### Step 4: Train recurrent model
-run `python train.py` to train and save the recurrent model. In my current best model, I trained for a maximum of 100 epochs, with an early stopping min_delta of 0.01, and an early stopping patience of 10. The model ended up stopping after the 38th epoch. 
+run `python ./bin/train.py` to train and save the recurrent model. In my current best model, I trained for a maximum of 100 epochs, with an early stopping min_delta of 0.01, and an early stopping patience of 10. The model ended up stopping after the 38th epoch. 
 
 ### Step 5: Create video displaying actual steering angle, predicted steering angle, and absolute error percentage.
-run `python video.py`. 
+run `python ./bin/video.py`. 
 
 ## Conclusions
 This was a really fun project because it was my first opportunity to work with ROSBAG data, recurrent layers, Keras functional model, and multi inputs to a model. I think I learned a lot about how recurrent networks work and will definitely be able to use this knowledge in the future. Although I have already learned a lot, there is still a ton of work I would to on the project in the future.
