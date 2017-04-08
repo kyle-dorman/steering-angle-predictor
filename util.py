@@ -146,4 +146,22 @@ def stop_instance():
   ids = [i.id for i in instances]
   ec2.instances.filter(InstanceIds=ids).stop() # .terminate()
 
+def zip_upload(folder):
+  data_folder = full_path(folder)
+  zipfile_name = "_".join(folder.split("/")) + ".zip"
+  zipfile_path = full_path(zipfile_name)
+
+  print("Zipping folder", data_folder, "to", zipfile_name)
+  zf = zipfile.ZipFile(zipfile_path, "w")
+  zipdir(data_folder, zf)
+  zf.close()
+  print("Finished zipping folder", data_folder)
+
+  upload_s3(zipfile_name)
+
+def download_unzip(zipfile):
+  download_s3(zipfile)
+
+  unzip_data(zipfile, full_path(""))
+
 

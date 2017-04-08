@@ -19,7 +19,7 @@ def get_image_processor_model(image_input):
 	output = BatchNormalization()(model.output)
 	return Model(input=image_input, output=output)
 
-def process_images(image_processor_model, images, batch_size, i_height, i_width):
+def process_images(image_processor_model, images, batch_size, i_width, i_height):
 	resized_images = np.array([scipy.misc.imresize(image, (i_height, i_width)) for image in images], dtype=np.float32)
 	preprocess_images = preprocess_input(resized_images)
 	return image_processor_model.predict(preprocess_images, batch_size=3)

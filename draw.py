@@ -43,3 +43,9 @@ def draw_path(img, pts, thickness=1, color=(0, 0, 255)):
 		cv2.line(img, top_left, bottom_right,color, thickness)
 
 	return img
+
+def draw_error(img, error, font_size=2, color=(255, 255, 255)):
+	text = "Absolute Error(%): {:.3f}".format(error)
+	height = img.shape[0]
+	cv2.putText(img, text, (50, height - 50), cv2.FONT_HERSHEY_COMPLEX_SMALL, font_size, color)
+	return img

@@ -32,8 +32,7 @@ class ImageGenerator(object):
 		return self.df.iloc[index][6]
 
 	def vehicle_data(self, index):
-		# skip steering angle
-		return np.array([0.0] + list(self.df.iloc[index][7:9].values))
+		return self.df.iloc[index][6:9].values
 
 	def vehicle_data_shape(self):
 		return self.vehicle_data(0).shape
