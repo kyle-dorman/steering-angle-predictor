@@ -4,6 +4,7 @@ image_data/*
 bottleneck_data/*
 logs/*
 *.gz
+.ipynb_checkpoints/
 !orig_data/.keep_me
 !image_data/.keep_me
 !bottleneck_data/.keep_me
